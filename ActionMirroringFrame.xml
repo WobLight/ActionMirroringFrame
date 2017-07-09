@@ -1,0 +1,52 @@
+ <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Script file="ActionMirroringFrame.lua"/>
+    <Button name="ActionMirroringFrame" parent="UIParent" enableMouse="true" movable="true">
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Size x="48" y="48"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture name="$parentHandle" setallpoints="true" hidden="true" file="Interface\AddOns\ActionMirroringFrame\amf-handle.tga">
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad>
+                this.eventHandler = ActionMirroringFrame_eventHandler
+                this:RegisterEvent("ADDON_LOADED")
+                this:RegisterForDrag("LeftButton")
+                this.current = {}
+                this.id = 0
+                this.UseAction = UseAction
+                local amf = this
+                UseAction = function(...)
+                    if not amf.standby then
+                        local o = amf.root
+                        o:overflow(arg[1])
+                        o:SetID(arg[1])
+                        o.timer = 0
+                        o:Show()
+                        o:Click()
+                    end
+                    amf.UseAction(unpack(arg))
+                end
+                this.standby = false
+            </OnLoad>
+            <OnDragStart>
+                this:StartMoving()
+            </OnDragStart>
+            <OnDragStop>
+                this:StopMovingOrSizing()
+            </OnDragStop>
+            <OnEvent>
+                local handle = this.eventHandler[event]
+                if handle then handle(this) end
+            </OnEvent>
+            <OnClick>
+                ActionMirroringFrame_onClick()
+            </OnClick>
+        </Scripts>
+    </Button>
+</Ui>

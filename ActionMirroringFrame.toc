@@ -1,0 +1,8 @@
+## Interface: 11200
+## Title: ActionMirroringFrame
+## Notes: create a frame mirroring used actions.
+## SavedVariables: ActionMirroringSettings
+## Version: 0.1
+## Author: WobLight
+MirrorTemplate.xml
+ActionMirroringFrame.xml

@@ -1,0 +1,27 @@
+ <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Script file="Mirror.lua"/>
+    <CheckButton name="MirrorTemplate" hidden="true" virtual="true" inherits="ActionButtonTemplate">
+        <Scripts>
+            <OnLoad>
+                ActionButton_OnLoad()
+                this.overflow = ActionMirroringFrame_overflow
+                this.getFirst = ActionMirroringFrame_getFirst
+                this.isCurrent = ActionMirroringFrame_isCurrent
+                this.hold = ActionMirroringFrame_hold
+                this.updateOrientation = ActionMirroringFrame_updateOrientation
+            </OnLoad>
+            <OnUpdate>
+                Mirror_OnUpdate()
+            </OnUpdate>
+            <OnClick>
+                ActionButton_Update();
+                ActionButton_UpdateState();
+                this:SetChecked()
+            </OnClick>
+            <OnEvent>
+                ActionButton_OnEvent(event)
+            </OnEvent>
+        </Scripts>
+    </CheckButton>
+</Ui>
