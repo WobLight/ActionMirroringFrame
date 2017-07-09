@@ -16,23 +16,10 @@
             <OnLoad>
                 this.eventHandler = ActionMirroringFrame_eventHandler
                 this:RegisterEvent("ADDON_LOADED")
+                this:RegisterEvent("PLAYER_LOGIN")
                 this:RegisterForDrag("LeftButton")
                 this.current = {}
                 this.id = 0
-                this.UseAction = UseAction
-                local amf = this
-                UseAction = function(...)
-                    if not amf.standby then
-                        local o = amf.root
-                        o:overflow(arg[1])
-                        o:SetID(arg[1])
-                        o.timer = 0
-                        o:Show()
-                        o:Click()
-                    end
-                    amf.UseAction(unpack(arg))
-                end
-                this.standby = false
             </OnLoad>
             <OnDragStart>
                 this:StartMoving()

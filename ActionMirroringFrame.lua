@@ -25,6 +25,11 @@ function ActionMirroringFrame_onClick()
     updateHandleRotation(getglobal(this:GetName() .. "Handle"))
 end
 
+
+local function print(s)
+    DEFAULT_CHAT_FRAME:AddMessage("|cffffff88ActionMirroringFrame|r|cffffff00 "..s)
+end
+
 ActionMirroringFrame_eventHandler = {}
 ActionMirroringFrame_eventHandler.ADDON_LOADED = function (this)
     if arg1 == "ActionMirroringFrame" then
@@ -44,8 +49,28 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function (this)
         this.root = ActionMirroringFrame_new(this)
         this.root:SetPoint("CENTER", this, "CENTER")
         this:UnregisterEvent("ADDON_LOADED")
-        DEFAULT_CHAT_FRAME:AddMessage("|cffffff88ActionMirroringFrame|r loaded. See /amf usage")
+        
+        print(" loaded. See /amf usage")
     end
+end
+
+ActionMirroringFrame_eventHandler.PLAYER_LOGIN = function (this)
+    this.UseAction = UseAction
+    local amf = this
+    UseAction = function(...)
+        if not amf.standby then
+            local o = amf.root
+            o:overflow(arg[1])
+            o:SetID(arg[1])
+            o.timer = 0
+            o:Show()
+            o:Click()
+        end
+        amf.UseAction(unpack(arg))
+    end
+    this.standby = false
+    print("UseAction hook activated.")
+    this:UnregisterEvent("PLAYER_LOGIN")
 end
 
 function ActionMirroringFrame_new(parent)
@@ -113,10 +138,6 @@ function ActionMirroringFrame_isCurrent(self)
     return true
   end
   return false
-end
-
-local function print(s)
-    DEFAULT_CHAT_FRAME:AddMessage("|cffffff00## ActionMirroringFrame "..s)
 end
 
 local ActionMirroringFrame_Usage = [[
