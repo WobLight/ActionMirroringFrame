@@ -21,8 +21,8 @@ end
 
 function ActionMirroringFrame_onClick()
     ActionMirroringSettings.orientation = mod(ActionMirroringSettings.orientation + 1,4)
-    this.root:updateOrientation()
-    updateHandleRotation(getglobal(this:GetName() .. "Handle"))
+    this:GetParent().root:updateOrientation()
+    updateHandleRotation(getglobal(this:GetName() .. "Tex"))
 end
 
 
@@ -189,13 +189,13 @@ local function CommandParser(msg, editbox)
     elseif command == "show" then
         if rest == "true" then
             ActionMirroringFrameHandle:Show()
-            updateHandleRotation(ActionMirroringFrameHandle)
+            updateHandleRotation(ActionMirroringFrameHandleTex)
         elseif rest == "" then
             if ActionMirroringFrameHandle:IsShown() then
                 ActionMirroringFrameHandle:Hide()
             else
                 ActionMirroringFrameHandle:Show()
-                updateHandleRotation(ActionMirroringFrameHandle)
+                updateHandleRotation(ActionMirroringFrameHandleTex)
             end
         else
             ActionMirroringFrameHandle:Hide()
