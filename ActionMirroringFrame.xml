@@ -10,14 +10,16 @@
             <OnLoad>
                 this.eventHandler = ActionMirroringFrame_eventHandler
                 this:RegisterEvent("ADDON_LOADED")
-                this:RegisterEvent("PLAYER_LOGIN")
                 this.current = {}
                 this.id = 0
             </OnLoad>
             <OnEvent>
                 local handle = this.eventHandler[event]
-                if handle then handle(this) end
+                if handle then handle() end
             </OnEvent>
+            <OnUpdate>
+                ActionMirroringFrame_Hook()
+            </OnUpdate>
         </Scripts>
         <Frames>
             <Button name="$parentHandle" hidden="true" setallpoints="true">

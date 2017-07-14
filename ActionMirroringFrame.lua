@@ -30,8 +30,13 @@ local function print(s)
     DEFAULT_CHAT_FRAME:AddMessage("|cffffff88ActionMirroringFrame|r|cffffff00 "..s)
 end
 
+local function DEBUG(s)
+    if ActionMirroringFrame.debug then
+       print(s)
+    end
+end
 ActionMirroringFrame_eventHandler = {}
-ActionMirroringFrame_eventHandler.ADDON_LOADED = function (this)
+ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
     if arg1 == "ActionMirroringFrame" then
         if ActionMirroringSettings == nil then
             ActionMirroringSettings = {
@@ -54,24 +59,58 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function (this)
     end
 end
 
-ActionMirroringFrame_eventHandler.PLAYER_LOGIN = function (this)
-    this.UseAction = UseAction
-    local amf = this
-    UseAction = function(...)
-        if not amf.standby then
-            local o = amf.root
-            o:overflow(arg[1])
-            o:SetID(arg[1])
-            o.timer = 0
-            o:Show()
-            o:Click()
-        end
-        amf.UseAction(unpack(arg))
+function ActionMirroringFrame_onUseAction(amf, id)
+    if not amf.standby then
+        local o = amf.root
+        o:overflow(id)
+        o:SetID(id)
+        o.timer = 0
+        o:Show()
+        o:Click()
     end
-    this.standby = false
-    print("UseAction hook activated.")
-    this:UnregisterEvent("PLAYER_LOGIN")
 end
+
+function ActionMirroringFrame_Hook()
+    if this.UseAction and UseAction == this.checked or this.preHook and UseAction == this.preHook.wrapped then
+        return
+    end
+    
+    local amf = this
+    DEBUG("hook set.")
+    local preHook = {}
+    function preHook:wrapper(...)
+        if self.wrapped ~= UseAction then
+            self.target(unpack(arg))
+            return
+        end
+        DEBUG("testing old hook.")
+        amf.hooked = nil
+        self.target(unpack(arg))
+        if amf.hooked then
+            debug("already hooked, dropping.")
+            UseAction = self.target
+            amf.checked = UseAction
+            return
+        end
+        DEBUG("hooking...")
+        local wrapped = self.target
+        amf.UseAction = wrapped
+        amf.checked = function(...)
+            amf.hooked = true
+            wrapped(unpack(arg))
+            ActionMirroringFrame_onUseAction(amf,arg[1])
+        end
+        UseAction = amf.checked
+        amf.standby = false
+        DEBUG("hooking complete.")
+        ActionMirroringFrame_onUseAction(amf,arg[1])
+    end
+    preHook.target = UseAction
+    this.preHook = preHook
+    preHook.wrapped = function(...) preHook:wrapper(unpack(arg)) end
+    UseAction = preHook.wrapped
+end
+
 
 function ActionMirroringFrame_new(parent)
     local o = CreateFrame("CheckButton", parent:GetName() .. parent.id, parent, "MirrorTemplate")
