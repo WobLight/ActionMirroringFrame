@@ -6,7 +6,11 @@ function Mirror_OnUpdate()
     this:SetScale(ActionMirroringSettings.scale)
     ActionButton_OnUpdate(arg1)
     
-    this:SetChecked(this.timer + arg1 <= ActionMirroringSettings.flashtime or this:isCurrent())
+    local isCurrent = this:isCurrent()
+    if isCurrent then
+        this:GetCheckedTexture():SetVertexColor(unpack(ActionMirroringSettings.activeColor))
+    end
+    this:SetChecked(this.timer + arg1 <= ActionMirroringSettings.flashtime or isCurrent)
     
     if this.timer + arg1 > ActionMirroringSettings.timeout and not this:hold() then
         this:Hide()

@@ -40,15 +40,22 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
     if arg1 == "ActionMirroringFrame" then
         if ActionMirroringSettings == nil then
             ActionMirroringSettings = {
-                dataVersion = "1.0.0",
+                dataVersion = "1.1.0",
                 timeout = 1.00, -- time before hiding after an action is used
                 flashtime = 0.20, -- duration of hightlight when an action is used
                 scale = 1.00, -- frame scale, to change it size
                 overflow = 2, -- create additional frames when actions are used closely
                 overflowTime = 0.66, -- time window to overflow
                 stickyActive = true, -- will prevent active actions from hiding
-                orientation = -1
+                orientation = -1,
+                activeColor = {1,1,0},
+                clickColor = {1,0.66,0.66}
             }
+        end
+        if ActionMirroringSettings.dataVersion == "1.0.0" then
+            ActionMirroringSettings.activeColor = {0,1,0}
+            ActionMirroringSettings.clickColor = {1,0,0}
+            ActionMirroringSettings.dataVersion = "1.1.0"
         end
         
         this.root = ActionMirroringFrame_new(this)
@@ -193,6 +200,9 @@ Usage:
     * overflow <num> (2)  number of extra mirrors
     * overflowTime <seconds> (0.66)  time withing the mirror will overflow
     * sticky [true|false] (true)  if true, active actions will now timeout (e.g. casting actions)
+    * color cast|click show hud to pick a color for mirrors' states
+        * cast: color for actions in progress
+        * click: color for mirrors' flashing
 ]]
 
 local function setToNumber(s, a)
@@ -251,6 +261,24 @@ local function CommandParser(msg, editbox)
             ActionMirroringSettings.sticky = false
         end
         print("sticky set to "..(ActionMirroringSettings.sticky and "active" or "disabled"))
+    elseif command == "color" then
+        if rest == "cast" then
+            ColorPickerFrame:SetColorRGB(unpack(ActionMirroringSettings.activeColor))
+            local old = ActionMirroringSettings.activeColor
+            ColorPickerFrame.cancelFunc = function() ActionMirroringSettings.activeColor = old end
+            ColorPickerFrame.func = function() ActionMirroringSettings.activeColor = {ColorPickerFrame:GetColorRGB()} end
+            ColorPickerFrame.opacityFunc = nil
+            ColorPickerFrame:Show()
+        elseif rest == "click" then
+            ColorPickerFrame:SetColorRGB(unpack(ActionMirroringSettings.clickColor))
+            local old = ActionMirroringSettings.clickColor
+            ColorPickerFrame.cancelFunc = function() ActionMirroringSettings.clickColor = old end
+            ColorPickerFrame.func = function() ActionMirroringSettings.clickColor = {ColorPickerFrame:GetColorRGB()} end
+            ColorPickerFrame.opacityFunc = nil
+            ColorPickerFrame:Show()
+        else
+            print(ActionMirroringFrame_Usage)
+        end
     else
         print(ActionMirroringFrame_Usage)
     end

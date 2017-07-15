@@ -2,6 +2,7 @@
 ..\FrameXML\UI.xsd">
     <Script file="Mirror.lua"/>
     <CheckButton name="MirrorTemplate" hidden="true" virtual="true" inherits="ActionButtonTemplate">
+        <CheckedTexture alphaMode="ADD" file="Interface\Addons\ActionMirroringFrame\ButtonHighlight"/>
         <Scripts>
             <OnLoad>
                 ActionButton_OnLoad()
@@ -17,7 +18,7 @@
             <OnClick>
                 ActionButton_Update();
                 ActionButton_UpdateState();
-                this:SetChecked()
+                this:GetCheckedTexture():SetVertexColor(unpack(ActionMirroringSettings.clickColor))
             </OnClick>
             <OnEvent>
                 ActionButton_OnEvent(event)

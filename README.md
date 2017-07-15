@@ -18,3 +18,6 @@ scale          | [\<coefficient>] | 1.00    | scale of the frame
 overflow       | [\<num>]         | 2       | number of extra mirrors
 overflowTime   | [\<seconds>]     | 0.66    | time withing the mirror will overflow
 sticky         | [true\|false]    | true    | if true, active actions will now timeout (e.g. casting actions)
+color          | cast\|click      |         | display color picking for:
+               | cast             |         | actions in progress
+               | click            |         | actions just used

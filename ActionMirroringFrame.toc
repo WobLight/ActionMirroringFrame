@@ -2,7 +2,7 @@
 ## Title: ActionMirroringFrame
 ## Notes: create a frame mirroring used actions.
 ## SavedVariables: ActionMirroringSettings
-## Version: 1.0.4
+## Version: 1.1.0
 ## Author: WobLight
 MirrorTemplate.xml
 ActionMirroringFrame.xml
