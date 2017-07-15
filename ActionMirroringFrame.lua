@@ -40,7 +40,7 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
     if arg1 == "ActionMirroringFrame" then
         if ActionMirroringSettings == nil then
             ActionMirroringSettings = {
-                dataVersion = "1.1.0",
+                dataVersion = "1.1.1",
                 timeout = 1.00, -- time before hiding after an action is used
                 flashtime = 0.20, -- duration of hightlight when an action is used
                 scale = 1.00, -- frame scale, to change it size
@@ -48,14 +48,25 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
                 overflowTime = 0.66, -- time window to overflow
                 stickyActive = true, -- will prevent active actions from hiding
                 orientation = -1,
-                activeColor = {1,1,0},
-                clickColor = {1,0.66,0.66}
+                activeColor = {0,1,0},
+                clickColor = {1,0,0}
             }
-        end
-        if ActionMirroringSettings.dataVersion == "1.0.0" then
+        elseif ActionMirroringSettings.dataVersion == "1.0.0" then
             ActionMirroringSettings.activeColor = {0,1,0}
             ActionMirroringSettings.clickColor = {1,0,0}
-            ActionMirroringSettings.dataVersion = "1.1.0"
+            ActionMirroringSettings.dataVersion = "1.1.1"
+        elseif ActionMirroringSettings.dataVersion == "1.1.0" then
+            if ActionMirroringSettings.activeColor[1] == 1 and
+                    ActionMirroringSettings.activeColor[2] == 1 and
+                    ActionMirroringSettings.activeColor[3] == 0 then
+                ActionMirroringSettings.activeColor = {0,1,0}
+            end
+            if ActionMirroringSettings.activeColor[1] == 0.66 and
+                    ActionMirroringSettings.activeColor[2] == 0.66 and
+                    ActionMirroringSettings.activeColor[3] == 1 then
+                ActionMirroringSettings.activeColor = {0,1,0}
+            end
+            ActionMirroringSettings.dataVersion = "1.1.1"
         end
         
         this.root = ActionMirroringFrame_new(this)
