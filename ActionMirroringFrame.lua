@@ -60,14 +60,15 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
 end
 
 function ActionMirroringFrame_onUseAction(amf, id)
-    if not amf.standby then
-        local o = amf.root
-        o:overflow(id)
-        o:SetID(id)
-        o.timer = 0
-        o:Show()
-        o:Click()
+    if amf.standby or CursorHasItem() or CursorHasSpell() then
+        return
     end
+    local o = amf.root
+    o:overflow(id)
+    o:SetID(id)
+    o.timer = 0
+    o:Show()
+    o:Click()
 end
 
 function ActionMirroringFrame_Hook()
@@ -79,7 +80,7 @@ function ActionMirroringFrame_Hook()
     DEBUG("hook set.")
     local preHook = {}
     function preHook:wrapper(...)
-        if self.wrapped ~= UseAction then
+        if self.wrapped ~= UseAction or CursorHasItem() or CursorHasSpell() then
             self.target(unpack(arg))
             return
         end
@@ -87,7 +88,7 @@ function ActionMirroringFrame_Hook()
         amf.hooked = nil
         self.target(unpack(arg))
         if amf.hooked then
-            debug("already hooked, dropping.")
+            DEBUG("already hooked, dropping.")
             UseAction = self.target
             amf.checked = UseAction
             return
@@ -97,8 +98,8 @@ function ActionMirroringFrame_Hook()
         amf.UseAction = wrapped
         amf.checked = function(...)
             amf.hooked = true
-            wrapped(unpack(arg))
             ActionMirroringFrame_onUseAction(amf,arg[1])
+            wrapped(unpack(arg))
         end
         UseAction = amf.checked
         amf.standby = false

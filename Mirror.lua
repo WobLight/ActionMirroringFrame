@@ -1,4 +1,8 @@
 function Mirror_OnUpdate()
+    if this.timer == nil then
+        this:Hide()
+        return
+    end
     this:SetScale(ActionMirroringSettings.scale)
     ActionButton_OnUpdate(arg1)
     
