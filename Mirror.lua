@@ -186,23 +186,26 @@ end
 function Mirror_UpdateHotkeys()
     local button = this:GetID()
     local bar = 6 - math.floor((button-1)/12)
+    if bar == 4 then
+        bar = 3
+    elseif bar == 3 then
+        bar = 4
+    end
     local actionButtonType = (bar < 1 or button <= 12) and "ACTIONBUTTON" or ("MULTIACTIONBAR"..bar.."BUTTON")
     local hotkey = getglobal(this:GetName().."HotKey")
     local action = actionButtonType..(mod(button -1,12)+1)
-    if ( GetBindingText(GetBindingKey(action), "KEY_", 1) == "" ) then
-        if ( not HasAction(button) ) then
-            hotkey:SetText("")
-        elseif ( ActionHasRange(button) ) then
+    local key = GetBindingText(GetBindingKey(action), "KEY_", 1)
+    if ( key == "" ) then
+        hotkey:SetText("")
+        if ( ActionHasRange(button) ) then
             if ( IsActionInRange(button) ) then
                 hotkey:SetText(RANGE_INDICATOR)
                 hotkey:SetTextHeight(8)
-                hotkey:SetPoint("TOPRIGHT", this:GetName(), "TOPRIGHT", -3, 5)
-            else
-                hotkey:SetText("")            
+                hotkey:SetPoint("TOPRIGHT", this:GetName(), "TOPRIGHT", -3, 5)         
             end
         end
     else
-        hotkey:SetText(GetBindingText(GetBindingKey(action), "KEY_", 1))
+        hotkey:SetText(key)
     end
 end
 
