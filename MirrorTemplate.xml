@@ -1,11 +1,76 @@
  <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
     <Script file="Mirror.lua"/>
-    <CheckButton name="MirrorTemplate" hidden="true" virtual="true" inherits="ActionButtonTemplate">
+    <CheckButton name="MirrorTemplate" hidden="true" virtual="true">
+        <Size>
+            <AbsDimension x="36" y="36"/>
+        </Size>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture name="$parentIcon"/>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture name="$parentFlash" file="Interface\Buttons\UI-QuickslotRed" hidden="true"/>
+                <FontString name="$parentHotKey" inherits="NumberFontNormalSmallGray" justifyH="RIGHT">
+                    <Size>
+                        <AbsDimension x="36" y="10"/>
+                    </Size>
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <Offset>
+                                <AbsDimension x="-2" y="-2"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+                <FontString name="$parentCount" inherits="NumberFontNormal" justifyH="RIGHT">
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT">
+                            <Offset>
+                                <AbsDimension x="-2" y="2"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString name="$parentName" inherits="GameFontHighlightSmallOutline">
+                    <Size>
+                        <AbsDimension x="36" y="10"/>
+                    </Size>
+                    <Anchors>
+                        <Anchor point="BOTTOM">
+                            <Offset>
+                                <AbsDimension x="0" y="2"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+                <Texture name="$parentBorder" file="Interface\Buttons\UI-ActionButton-Border" hidden="true" alphaMode="ADD">
+                    <Size>
+                        <AbsDimension x="62" y="62"/>
+                    </Size>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Model name="$parentCooldown" inherits="CooldownFrameTemplate">
+                <Size x="36" y="36"/>
+            </Model>
+        </Frames>
+        <NormalTexture name="$parentNormalTexture" file="Interface\Addons\ActionMirroringFrame\ButtonBorder">
+            <Size>
+                <AbsDimension x="66" y="66"/>
+            </Size>
+            <Anchors>
+                <Anchor point="CENTER">
+                </Anchor>
+            </Anchors>
+        </NormalTexture>
         <CheckedTexture alphaMode="ADD" file="Interface\Addons\ActionMirroringFrame\ButtonHighlight"/>
         <Scripts>
             <OnLoad>
-                ActionButton_OnLoad()
+                Mirror_OnLoad()
                 this.overflow = ActionMirroringFrame_overflow
                 this.getFirst = ActionMirroringFrame_getFirst
                 this.isCurrent = ActionMirroringFrame_isCurrent
@@ -16,12 +81,14 @@
                 Mirror_OnUpdate()
             </OnUpdate>
             <OnClick>
-                ActionButton_Update();
-                ActionButton_UpdateState();
+                Mirror_UpdateFlash()
+                Mirror_Update()
+                ActionButton_UpdateState()
+                Mirror_UpdateHotkeys(this.buttonType)
                 this:GetCheckedTexture():SetVertexColor(unpack(ActionMirroringSettings.clickColor))
             </OnClick>
             <OnEvent>
-                ActionButton_OnEvent(event)
+                Mirror_OnEvent(event)
             </OnEvent>
         </Scripts>
     </CheckButton>

@@ -153,6 +153,8 @@ function ActionMirroringFrame_overflow(self, nid)
     self.next:overflow()
     self.next:SetID(self:GetID())
     self.next.timer = self.timer
+    self.next.flashing = self.flashing;
+    self.next.flashtime = self.flashtime;
     if self:isCurrent() then
       ActionMirroringFrame.current[self:GetID()] = self.next.id
     end
@@ -174,7 +176,7 @@ end
 function ActionMirroringFrame_updateOrientation(self)
     if self.next then
         local a = math.pi/2 * ActionMirroringSettings.orientation
-        self.next:SetPoint("CENTER", self, "CENTER", self:GetWidth() * math.sin(a), self:GetHeight() * math.cos(a))
+        self.next:SetPoint("CENTER", self, "CENTER", (self:GetWidth() +3) * math.sin(a), (self:GetHeight() +3) * math.cos(a))
         self.next:updateOrientation()
     end
 end
