@@ -334,7 +334,7 @@ function Mirror_Refresh(self)
     this = self
     Mirror_UpdateFlash()
     Mirror_Update()
-    ActionButton_UpdateState()
+    Mirror_UpdateState()
     Mirror_UpdateHotkeys(this.buttonType)
     getglobal(this:GetName().."HighlightTexture"):SetVertexColor(unpack(ActionMirroringSettings.clickColor))
     this = oldthis
