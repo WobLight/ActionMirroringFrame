@@ -7,7 +7,7 @@ function Mirror_OnUpdate()
     Mirror_OnUpdateButton(arg1)
     
     if this:isCurrent() then
-        this:GetCheckedTexture():SetVertexColor(unpack(ActionMirroringSettings.activeColor))
+        getglobal(this:GetName().."HighlightTexture"):SetVertexColor(unpack(ActionMirroringSettings.activeColor))
     end
     
     if this.timer + arg1 > ActionMirroringSettings.timeout and not this:hold() then
@@ -20,6 +20,7 @@ function Mirror_OnUpdate()
 end
 
 function Mirror_OnLoad()
+    
     this.flashing = 0
     this.flashtime = 0
     Mirror_Update()
@@ -48,7 +49,7 @@ function Mirror_Update()
         icon:SetTexture(texture)
         icon:Show()
         this.rangeTimer = -1
-        this:SetNormalTexture("Interface\\Addons\\ActionMirroringFrame\\ButtonBorder")
+        getglobal(this:GetName().."NormalTexture"):SetTexture("Interface\\Addons\\ActionMirroringFrame\\ButtonBorder")
         -- Save texture if the button is a bonus button, will be needed later
         if ( this.isBonus ) then
             this.texture = texture
@@ -320,4 +321,15 @@ function Mirror_UpdateCooldown()
     local cooldown = getglobal(this:GetName().."Cooldown")
     local start, duration, enable = GetActionCooldown(this:GetID())
     CooldownFrame_SetTimer(cooldown, start, duration, enable)
+end
+
+function Mirror_Refresh(self)
+    local oldthis = this
+    this = self
+    Mirror_UpdateFlash()
+    Mirror_Update()
+    ActionButton_UpdateState()
+    Mirror_UpdateHotkeys(this.buttonType)
+    getglobal(this:GetName().."HighlightTexture"):SetVertexColor(unpack(ActionMirroringSettings.clickColor))
+    this = oldthis
 end

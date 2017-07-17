@@ -86,7 +86,7 @@ function ActionMirroringFrame_onUseAction(amf, id)
     o:SetID(id)
     o.timer = 0
     o:Show()
-    o:Click()
+    o:refresh()
 end
 
 function ActionMirroringFrame_Hook()
@@ -132,7 +132,7 @@ end
 
 
 function ActionMirroringFrame_new(parent)
-    local o = CreateFrame("CheckButton", parent:GetName() .. parent.id, parent, "MirrorTemplate")
+    local o = CreateFrame("Frame", parent:GetName() .. parent.id, parent, "MirrorTemplate")
     o.id = parent.id
     parent.id = parent.id + 1
     return o
@@ -159,7 +159,7 @@ function ActionMirroringFrame_overflow(self, nid)
       ActionMirroringFrame.current[self:GetID()] = self.next.id
     end
     self.next:Show()
-    self.next:Click()
+    self.next:refresh()
   end
 end
 
