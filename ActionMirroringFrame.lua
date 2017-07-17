@@ -78,7 +78,7 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
 end
 
 function ActionMirroringFrame_onUseAction(amf, id)
-    if amf.standby or CursorHasItem() or CursorHasSpell() then
+    if amf.standby or CursorHasItem() or CursorHasSpell() or HasAction(id) == nil then
         return
     end
     local o = amf.root
