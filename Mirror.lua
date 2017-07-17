@@ -302,6 +302,7 @@ function Mirror_UpdateUsable()
     elseif ( notEnoughMana ) then
         icon:SetVertexColor(0.5, 0.5, 1.0)
         normalTexture:SetVertexColor(0.5, 0.5, 1.0)
+        getglobal(this:GetName().."PowerTip"):Show()
     else
         icon:SetVertexColor(0.4, 0.4, 0.4)
         normalTexture:SetVertexColor(1.0, 1.0, 1.0)
@@ -321,6 +322,9 @@ function Mirror_UpdateCooldown()
     local cooldown = getglobal(this:GetName().."Cooldown")
     local start, duration, enable = GetActionCooldown(this:GetID())
     CooldownFrame_SetTimer(cooldown, start, duration, enable)
+    if GetTime() - start < duration then
+        getglobal(this:GetName().."CooldownTip"):Show()
+    end
 end
 
 function Mirror_Refresh(self)
@@ -332,4 +336,67 @@ function Mirror_Refresh(self)
     Mirror_UpdateHotkeys(this.buttonType)
     getglobal(this:GetName().."HighlightTexture"):SetVertexColor(unpack(ActionMirroringSettings.clickColor))
     this = oldthis
+end
+
+function Mirror_UpdateCooldownTip()
+    local cooldown = getglobal(this:GetParent():GetName().."Cooldown")
+    if not cooldown:IsShown() or cooldown.stopping ~= 0 then
+        this:Hide()
+        return
+    end
+    local left = cooldown.duration - GetTime() + cooldown.start
+    if left <= 60 then
+        getglobal(this:GetName().."Text"):SetText(string.format("%.2fs", left))
+    else
+        getglobal(this:GetName().."Text"):SetText(string.format("%.2fm", left/60))
+    end
+end
+
+function Mirror_UpdatePowerTip()
+    local id = this:GetParent():GetID()
+    if ({IsUsableAction(id)})[2] then
+        ActionMirroringFrameTooltipScanner:SetOwner(UIParent, "ANCHOR_NONE")
+        ActionMirroringFrameTooltipScanner:SetAction(id)
+        local powerType
+        local text = getglobal(this:GetName().."Text")
+        local background = getglobal(this:GetName().."Background")
+        local tip = ActionMirroringFrameTooltipScannerTextLeft2:GetText()
+        if tip == nil then
+            text:Hide()
+        end
+        local _,_,req, t = strfind(tip,"(%d+).-(%w+)")
+        if t == MANA then
+            powerType = 0
+        elseif t == RAGE then
+            powerType = 1
+        elseif t == ENERGY then
+            powerType = 3
+        end
+        if powerType and UnitPowerType("player") == powerType then
+            text:SetText(tonumber(req) - UnitMana("player"))
+            text:Show()
+        else
+            text:Hide()
+        end
+        if powerType == 0 then
+            background:SetVertexColor(0,0,1)
+            background:Show()
+        elseif powerType == 1 then
+            background:SetVertexColor(1,0,0)
+            background:Show()
+        elseif powerType == 3 then
+            background:SetVertexColor(1,1,0)
+            background:Show()
+        else
+            background:Hide()
+        end
+        local cdTip = getglobal(this:GetParent():GetName().."CooldownTip")
+        if cdTip:IsShown() then
+            this:SetPoint("BOTTOM",cdTip,"TOP",0,3)
+        else
+            this:SetPoint("BOTTOM",this:GetParent(),"TOP",0,6)
+        end
+    else
+        this:Hide()
+    end
 end

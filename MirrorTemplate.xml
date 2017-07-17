@@ -1,6 +1,24 @@
  <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
     <Script file="Mirror.lua"/>
+    <Frame name="MirrorTipTemplate" virtual="true" hidden="true">
+        <Size>
+            <AbsDimension x="40" y="10"/>
+        </Size>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture name="$parentBackground">
+                    <Size>
+                        <AbsDimension x="40" y="14"/>
+                    </Size>
+                    <Color r="1" g="1" b="1" a="0.5" />
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString name="$parentText" inherits="GameFontHighlightSmallOutline" setallpoints="true"/>
+            </Layer>
+        </Layers>
+    </Frame>
     <Frame name="MirrorTemplate" hidden="true" virtual="true">
         <Size>
             <AbsDimension x="36" y="36"/>
@@ -70,6 +88,37 @@
             <Model name="$parentCooldown" inherits="CooldownFrameTemplate">
                 <Size x="36" y="36"/>
             </Model>
+            <Frame name="$parentCooldownTip" inherits="MirrorTipTemplate">
+                <Anchors>
+                    <Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP">
+                        <Offset>
+                            <AbsDimension x="0" y="6"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnUpdate>
+                        Mirror_UpdateCooldownTip()
+                    </OnUpdate>
+                    <OnLoad>
+                        getglobal(this:GetName().."Background"):SetVertexColor(0,0,0)
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <Frame name="$parentPowerTip" inherits="MirrorTipTemplate">
+                <Anchors>
+                    <Anchor point="BOTTOM" relativeTo="$parentCooldownTip" relativePoint="TOP">
+                        <Offset>
+                            <AbsDimension x="0" y="3"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnUpdate>
+                        Mirror_UpdatePowerTip()
+                    </OnUpdate>
+                </Scripts>
+            </Frame>
         </Frames>
         <Scripts>
             <OnLoad>

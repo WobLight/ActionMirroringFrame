@@ -1,6 +1,13 @@
  <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
     <Script file="ActionMirroringFrame.lua"/>
+    <GameTooltip name="ActionMirroringFrameTooltipScanner" inherits="GameTooltipTemplate">
+        <Scripts>
+            <Onload>
+                this:SetOwner(UIParent, "ANCHOR_NONE");
+            </Onload>
+        </Scripts>
+    </GameTooltip>
     <Frame name="ActionMirroringFrame" parent="UIParent" movable="true">
         <Size x="48" y="48"/>
         <Anchors>
