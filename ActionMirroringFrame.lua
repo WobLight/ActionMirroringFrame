@@ -40,7 +40,7 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
     if arg1 == "ActionMirroringFrame" then
         if ActionMirroringSettings == nil then
             ActionMirroringSettings = {
-                dataVersion = "1.1.1",
+                dataVersion = "1.2.0",
                 timeout = 1.00, -- time before hiding after an action is used
                 flashtime = 0.20, -- duration of hightlight when an action is used
                 scale = 1.00, -- frame scale, to change it size
@@ -49,12 +49,14 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
                 stickyActive = true, -- will prevent active actions from hiding
                 orientation = -1,
                 activeColor = {0,1,0},
-                clickColor = {1,0,0}
+                clickColor = {1,0,0},
+                cooldownTip = true,
+                costTip = true
             }
         elseif ActionMirroringSettings.dataVersion == "1.0.0" then
             ActionMirroringSettings.activeColor = {0,1,0}
             ActionMirroringSettings.clickColor = {1,0,0}
-            ActionMirroringSettings.dataVersion = "1.1.1"
+            ActionMirroringSettings.dataVersion = "1.2.0"
         elseif ActionMirroringSettings.dataVersion == "1.1.0" then
             if ActionMirroringSettings.activeColor[1] == 1 and
                     ActionMirroringSettings.activeColor[2] == 1 and
@@ -66,7 +68,13 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
                     ActionMirroringSettings.activeColor[3] == 1 then
                 ActionMirroringSettings.activeColor = {0,1,0}
             end
-            ActionMirroringSettings.dataVersion = "1.1.1"
+            ActionMirroringSettings.cooldownTip = true
+            ActionMirroringSettings.costTip = true
+            ActionMirroringSettings.dataVersion = "1.2.0"
+        elseif ActionMirroringSettings.dataVersion == "1.1.1" then
+            ActionMirroringSettings.cooldownTip = true
+            ActionMirroringSettings.costTip = true
+            ActionMirroringSettings.dataVersion = "1.2.0"
         end
         
         this.root = ActionMirroringFrame_new(this)
@@ -216,6 +224,8 @@ Usage:
     * color cast|click show hud to pick a color for mirrors' states
         * cast: color for actions in progress
         * click: color for mirrors' flashing
+    * cooldownTip [true|false] show/hide cooldown time over mirrors
+    * costTip [true|false] show/hide missing mana/rage/energy over mirrors
 ]]
 
 local function setToNumber(s, a)

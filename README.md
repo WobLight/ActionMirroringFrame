@@ -19,3 +19,5 @@ overflow       | [\<num>]         | 2       | number of extra mirrors
 overflowTime   | [\<seconds>]     | 0.66    | time withing the mirror will overflow
 sticky         | [true\|false]    | true    | if true, active actions will now timeout (e.g. casting actions)
 color          | cast\|click      |         | display color picking for: <ul><li>*cast*: actions in progress</li><li>*click*: actions just used</li></ul>
+cooldownTip    | [true\|false]    |         | show/hide cooldown time over mirrors
+costTip        | [true\|false]    |         | show/hide missing mana/rage/energy over mirrors

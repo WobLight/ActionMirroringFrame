@@ -302,7 +302,9 @@ function Mirror_UpdateUsable()
     elseif ( notEnoughMana ) then
         icon:SetVertexColor(0.5, 0.5, 1.0)
         normalTexture:SetVertexColor(0.5, 0.5, 1.0)
-        getglobal(this:GetName().."PowerTip"):Show()
+        if ActionMirroringSettings.costTip then
+            getglobal(this:GetName().."PowerTip"):Show()
+        end
     else
         icon:SetVertexColor(0.4, 0.4, 0.4)
         normalTexture:SetVertexColor(1.0, 1.0, 1.0)
@@ -322,7 +324,7 @@ function Mirror_UpdateCooldown()
     local cooldown = getglobal(this:GetName().."Cooldown")
     local start, duration, enable = GetActionCooldown(this:GetID())
     CooldownFrame_SetTimer(cooldown, start, duration, enable)
-    if GetTime() - start < duration then
+    if ActionMirroringSettings.cooldownTip and GetTime() - start < duration then
         getglobal(this:GetName().."CooldownTip"):Show()
     end
 end
