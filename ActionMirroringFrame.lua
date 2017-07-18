@@ -19,9 +19,19 @@ local function updateHandleRotation(handle)
     rotate(handle,math.pi/2 * ActionMirroringSettings.orientation)
 end
 
-function ActionMirroringFrame_onClick()
-    ActionMirroringSettings.orientation = mod(ActionMirroringSettings.orientation + 1,4)
+function ActionMirroringFrame_SetOrientation(o)
+    if o < 0 then
+        o = 4 - o
+    end
+    if o < 0 or o > 3 then
+        return
+    end
+    ActionMirroringSettings.orientation = o
     this:GetParent().root:updateOrientation()
+end
+
+function ActionMirroringFrame_onClick()
+    ActionMirroringFrame_SetOrientation(mod(ActionMirroringSettings.orientation + 1,4))
     updateHandleRotation(getglobal(this:GetName() .. "Tex"))
 end
 
@@ -40,14 +50,14 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
     if arg1 == "ActionMirroringFrame" then
         if ActionMirroringSettings == nil then
             ActionMirroringSettings = {
-                dataVersion = "1.2.0",
+                dataVersion = "1.2.1",
                 timeout = 1.00, -- time before hiding after an action is used
                 flashtime = 0.20, -- duration of hightlight when an action is used
                 scale = 1.00, -- frame scale, to change it size
                 overflow = 2, -- create additional frames when actions are used closely
                 overflowTime = 0.66, -- time window to overflow
                 stickyActive = true, -- will prevent active actions from hiding
-                orientation = -1,
+                orientation = 3,
                 activeColor = {0,1,0},
                 clickColor = {1,0,0},
                 cooldownTip = true,
@@ -56,7 +66,7 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
         elseif ActionMirroringSettings.dataVersion == "1.0.0" then
             ActionMirroringSettings.activeColor = {0,1,0}
             ActionMirroringSettings.clickColor = {1,0,0}
-            ActionMirroringSettings.dataVersion = "1.2.0"
+            ActionMirroringSettings.dataVersion = "1.2.1"
         elseif ActionMirroringSettings.dataVersion == "1.1.0" then
             if ActionMirroringSettings.activeColor[1] == 1 and
                     ActionMirroringSettings.activeColor[2] == 1 and
@@ -70,12 +80,18 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
             end
             ActionMirroringSettings.cooldownTip = true
             ActionMirroringSettings.costTip = true
-            ActionMirroringSettings.dataVersion = "1.2.0"
+            ActionMirroringSettings.dataVersion = "1.2.1"
         elseif ActionMirroringSettings.dataVersion == "1.1.1" then
             ActionMirroringSettings.cooldownTip = true
             ActionMirroringSettings.costTip = true
-            ActionMirroringSettings.dataVersion = "1.2.0"
+            ActionMirroringSettings.dataVersion = "1.2.1"
+        elseif ActionMirroringSettings.dataVersion == "1.2.0" then
+            if ActionMirroringSettings.orientation < 0 then
+                ActionMirroringSettings.orientation = 3 - mod(ActionMirroringSettings.orientation +1)
+            end
+            ActionMirroringSettings.dataVersion = "1.2.1"
         end
+            
         
         this.root = ActionMirroringFrame_new(this)
         this.root:SetPoint("CENTER", this, "CENTER")
@@ -182,11 +198,13 @@ function ActionMirroringFrame_getFirst(self,id)
 end
 
 function ActionMirroringFrame_updateOrientation(self)
+    local orientation = ActionMirroringSettings.orientation
     if self.next then
-        local a = math.pi/2 * ActionMirroringSettings.orientation
+        local a = math.pi/2 * orientation
         self.next:SetPoint("CENTER", self, "CENTER", (self:GetWidth() +3) * math.sin(a), (self:GetHeight() +3) * math.cos(a))
         self.next:updateOrientation()
     end
+    Mirror_changeTipsPosition(getglobal(self:GetName() .. "CooldownTip"), orientation +1)
 end
 
 function ActionMirroringFrame_isCurrent(self)

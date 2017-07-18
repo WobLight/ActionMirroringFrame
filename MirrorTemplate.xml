@@ -15,6 +15,18 @@
                 <FontString name="$parentText" inherits="GameFontHighlightSmallOutline" setallpoints="true"/>
             </Layer>
         </Layers>
+        <Scripts>
+            <OnShow>
+                if this.next then
+                    MirrorTip_restorePoints(this.next)
+                end
+            </OnShow>
+            <OnHide>
+                if this.next then
+                    MirrorTip_restoreAltPoints(this.next)
+                end
+            </OnHide>
+        </Scripts>
     </Frame>
     <Frame name="MirrorTemplate" hidden="true" virtual="true">
         <Size>
@@ -90,31 +102,28 @@
                 <Size x="36" y="36"/>
             </Model>
             <Frame name="$parentCooldownTip" inherits="MirrorTipTemplate">
-                <Anchors>
-                    <Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP">
-                        <Offset>
-                            <AbsDimension x="0" y="6"/>
-                        </Offset>
-                    </Anchor>
-                </Anchors>
                 <Scripts>
+                    <OnLoad>
+                        this.offset=6
+                    </OnLoad>
                     <OnUpdate>
                         Mirror_UpdateCooldownTip()
                     </OnUpdate>
                     <OnLoad>
                         getglobal(this:GetName().."Background"):SetVertexColor(0,0,0)
+                        Mirror_changeTipsPosition(this, ActionMirroringSettings.orientation+1)
                     </OnLoad>
                 </Scripts>
             </Frame>
             <Frame name="$parentPowerTip" inherits="MirrorTipTemplate">
-                <Anchors>
-                    <Anchor point="BOTTOM" relativeTo="$parentCooldownTip" relativePoint="TOP">
-                        <Offset>
-                            <AbsDimension x="0" y="3"/>
-                        </Offset>
-                    </Anchor>
-                </Anchors>
                 <Scripts>
+                    <OnLoad>
+                        this.points =           {{"BOTTOM", this:GetParent():GetName().."CooldownTip", "TOP", 0, 3}}
+                        this.revertedPoints =   {{"TOP", this:GetParent():GetName().."CooldownTip", "BOTTOM", 0, -3}}
+                        this.altPoints =        {{"BOTTOM", this:GetParent():GetName().."CooldownTip", "BOTTOM", 0, 0}}
+                        getglobal(this:GetParent():GetName().."CooldownTip").next = this
+                        MirrorTip_restoreAltPoints(this)
+                    </OnLoad>
                     <OnUpdate>
                         Mirror_UpdatePowerTip()
                     </OnUpdate>

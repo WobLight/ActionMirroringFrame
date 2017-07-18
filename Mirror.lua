@@ -398,13 +398,53 @@ function Mirror_UpdatePowerTip()
         else
             background:Hide()
         end
-        local cdTip = getglobal(this:GetParent():GetName().."CooldownTip")
-        if cdTip:IsShown() then
-            this:SetPoint("BOTTOM",cdTip,"TOP",0,3)
-        else
-            this:SetPoint("BOTTOM",this:GetParent(),"TOP",0,6)
-        end
     else
         this:Hide()
+    end
+end
+
+function MirrorTip_restorePoints(this)
+    this:ClearAllPoints()
+    for _,point in this:GetParent().revertedTips and this.revertedPoints or this.points do
+        this:SetPoint(unpack(point))
+    end
+end
+
+function MirrorTip_restoreAltPoints(this)
+    this:ClearAllPoints()
+    for _,point in this.altPoints do
+        this:SetPoint(unpack(point))
+    end
+end
+
+function Mirror_changeTipsPosition(tips, p)
+    tips:ClearAllPoints()
+    if mod(p,2) == 0 then
+        tips:SetPoint("CENTER", tips:GetParent():GetName(), "CENTER")
+    else
+        tips:SetPoint("BOTTOM", tips:GetParent():GetName(), "BOTTOM")
+    end
+    if p == 0 then
+        tips:SetPoint("BOTTOM", tips:GetParent():GetName(), "BOTTOM")
+    elseif p == 1 then
+        tips:SetPoint("LEFT", tips:GetParent():GetName(), "RIGHT", 3, 0)
+    elseif p == 2 then
+        tips:SetPoint("TOP", tips:GetParent():GetName(), "BOTTOM", 0, -4)
+    elseif p == 3 then
+        tips:SetPoint("RIGHT", tips:GetParent():GetName(), "LEFT", -3,0)
+    elseif p == 4 then
+        tips:SetPoint("BOTTOM", tips:GetParent():GetName(), "TOP", 0, 4)
+    end
+    tips:GetParent().revertedTips = p == 2
+    local chained = tips.next
+    local shown = tips:IsShown()
+    while chained do
+        if shown then
+            MirrorTip_restorePoints(chained)
+        else
+            MirrorTip_restoreAltPoints(chained)
+        end
+        shown = chained:IsShown()
+        chained = chained.next
     end
 end
