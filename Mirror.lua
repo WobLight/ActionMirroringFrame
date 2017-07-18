@@ -357,6 +357,12 @@ end
 function Mirror_UpdatePowerTip()
     local id = this:GetParent():GetID()
     if ({IsUsableAction(id)})[2] then
+        this.update = this.update and this.update - arg1 or TOOLTIP_UPDATE_TIME
+        if this.id == id and this.update > 0 then
+            return
+        end
+        this.id = id
+        this.update = TOOLTIP_UPDATE_TIME
         ActionMirroringFrameTooltipScanner:SetOwner(UIParent, "ANCHOR_NONE")
         ActionMirroringFrameTooltipScanner:SetAction(id)
         local powerType
