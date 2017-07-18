@@ -366,7 +366,7 @@ function Mirror_UpdatePowerTip()
         if tip == nil then
             text:Hide()
         end
-        local _,_,req, t = strfind(tip,"(%d+).-(%w+)")
+        local _,_,req, t = strfind(tip or "","(%d+).-(%w+)")
         if t == MANA then
             powerType = 0
         elseif t == RAGE then
