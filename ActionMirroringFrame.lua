@@ -35,9 +35,23 @@ function ActionMirroringFrame_onClick()
     updateHandleRotation(getglobal(this:GetName() .. "Tex"))
 end
 
-
 local function print(s)
-    DEFAULT_CHAT_FRAME:AddMessage("|cffffff88ActionMirroringFrame|r|cffffff00 "..s)
+    if strfind(s,"\n",strfind(s,"\n",strfind(s,"\n",strfind(s,"\n")))) then
+        local _,_,s,r= strfind(s,"^(.-)\n(.*)$")
+        DEFAULT_CHAT_FRAME:AddMessage("|cffffff88ActionMirroringFrame|r|cffffff00 "..s)
+        _,_,s,r= strfind(r,"^(.-)\n(.*)$")
+        local tail
+        while s do
+            tail = r
+            DEFAULT_CHAT_FRAME:AddMessage("|cffffff00 "..s)
+            _,_,s,r= strfind(r,"^(.-)\n(.*)$")
+        end
+        if tail ~= "" then
+            DEFAULT_CHAT_FRAME:AddMessage("|cffffff00 "..tail)
+        end
+    else
+        DEFAULT_CHAT_FRAME:AddMessage("|cffffff88ActionMirroringFrame|r|cffffff00 "..s)
+    end
 end
 
 local function DEBUG(s)
