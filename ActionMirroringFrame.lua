@@ -228,31 +228,56 @@ Usage:
     * costTip [true|false] show/hide missing mana/rage/energy over mirrors
 ]]
 
-local function setToNumber(s, a)
+local SETTINGS = {}
+
+local function setToNumber(e, a)
+    local i = SETTINGS[e].target or i
     if a == "" then
-        print(s.." is "..ActionMirroringSettings[s])
+        print(e.." is "..ActionMirroringSettings[s])
         return
     end
     local n = tonumber(a)
     if n then
-        ActionMirroringSettings[s] = n
-        print(s.." setted to "..ActionMirroringSettings[s])
+        ActionMirroringSettings[i] = n
+        print(e.." setted to "..ActionMirroringSettings[i])
     else
         print(ActionMirroringFrame_Usage)
     end
 end
 
-local function find(e, t)
-    for _,v in t do
-        if v == e then
-            return true
-        end
+local function switchSetting(e,r)
+    local i = SETTINGS[e].target or i
+    if r == "true" then
+        ActionMirroringSettings[i] = true
+    elseif r == "" then
+        ActionMirroringSettings[i] = not ActionMirroringSettings[i]
+    else
+        ActionMirroringSettings[i] = false
     end
+    print(e.." is "..(ActionMirroringSettings[i] and "active" or "disabled"))
 end
+
+local function bind(f,a)
+    return function(...) f(a, unpack(arg)) end
+end
+
+SETTINGS = 
+{
+    timeout =       {setter = setToNumber},
+    flashtime =     {setter = setToNumber},
+    scale =         {setter = setToNumber},
+    overflow =      {setter = setToNumber},
+    overflowTime =  {setter = setToNumber},
+    sticky =        {setter = switchSetting, target = "stickyActive"},
+    cooldownTip =   {setter = switchSetting, target = "cooldownTip"},
+    costTip =       {setter = switchSetting, target = "costTip"}
+}
 
 local function CommandParser(msg, editbox)
     local _,_,command, rest = string.find(msg,"^(%S*)%s*(.-)$")
-    if command == "standby" then
+    if SETTINGS[command] then
+        SETTINGS[command].setter(command,rest)
+    elseif command == "standby" then
         if rest ~= "" then
             ActionMirroringFrame.standby = rest == "true"
         else
@@ -273,17 +298,6 @@ local function CommandParser(msg, editbox)
         else
             ActionMirroringFrameHandle:Hide()
         end
-    elseif find(command, {"timeout", "flashtime", "scale", "overflow", "overflowTime"}) then
-        setToNumber(command, rest)
-    elseif command == "sticky" then
-        if rest == "true" then
-            ActionMirroringSettings.sticky = true
-        elseif rest == "" then
-            ActionMirroringSettings.sticky = not ActionMirroringSettings.sticky
-        else
-            ActionMirroringSettings.sticky = false
-        end
-        print("sticky set to "..(ActionMirroringSettings.sticky and "active" or "disabled"))
     elseif command == "color" then
         if rest == "cast" then
             ColorPickerFrame:SetColorRGB(unpack(ActionMirroringSettings.activeColor))
