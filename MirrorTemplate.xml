@@ -3,7 +3,7 @@
     <Script file="Mirror.lua"/>
     <Frame name="MirrorTipTemplate" virtual="true" hidden="true">
         <Size>
-            <AbsDimension x="40" y="10"/>
+            <AbsDimension x="38" y="10"/>
         </Size>
         <Layers>
             <Layer level="BACKGROUND">
