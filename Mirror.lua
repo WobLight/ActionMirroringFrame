@@ -324,7 +324,7 @@ function Mirror_UpdateCooldown()
     local cooldown = getglobal(this:GetName().."Cooldown")
     local start, duration, enable = GetActionCooldown(this:GetID())
     CooldownFrame_SetTimer(cooldown, start, duration, enable)
-    if ActionMirroringSettings.cooldownTip and GetTime() - start < duration then
+    if ActionMirroringSettings.cooldownTip and GetTime() - start < duration and (duration > ActionMirroringSettings.cooldownTipThreshold) then
         getglobal(this:GetName().."CooldownTip"):Show()
     end
 end
@@ -342,15 +342,15 @@ end
 
 function Mirror_UpdateCooldownTip()
     local cooldown = getglobal(this:GetParent():GetName().."Cooldown")
-    if not cooldown:IsShown() or cooldown.stopping ~= 0 then
+    if not cooldown:IsShown() or cooldown.stopping ~= 0 or cooldown.duration <= ActionMirroringSettings.cooldownTipThreshold then
         this:Hide()
         return
     end
     local left = cooldown.duration - GetTime() + cooldown.start
     if left <= 60 then
-        getglobal(this:GetName().."Text"):SetText(string.format("%.2fs", left))
+        getglobal(this:GetName().."Text"):SetText(string.format("%.1fs", left))
     else
-        getglobal(this:GetName().."Text"):SetText(string.format("%.2fm", left/60))
+        getglobal(this:GetName().."Text"):SetText(string.format("%d:%02d", left/60, mod(left,60)))
     end
 end
 

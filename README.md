@@ -21,3 +21,4 @@ sticky         | [true\|false]    | true    | if true, active actions will now t
 color          | cast\|click      |         | display color picking for: <ul><li>*cast*: actions in progress</li><li>*click*: actions just used</li></ul>
 cooldownTip    | [true\|false]    |         | show/hide cooldown time over mirrors
 costTip        | [true\|false]    |         | show/hide missing mana/rage/energy over mirrors
+cooldownTipThreshold | [<seconds>]| 1.5     | set the minimum duration of the cooldown for the cooldown tip to be shown

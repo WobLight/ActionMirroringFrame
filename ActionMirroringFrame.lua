@@ -59,51 +59,50 @@ local function DEBUG(s)
        print(s)
     end
 end
+
+local ActionMirroringSettingsDefaults = {
+    dataVersion = "1.2.2",
+    timeout = 1.00, -- time before hiding after an action is used
+    flashtime = 0.20, -- duration of hightlight when an action is used
+    scale = 1.00, -- frame scale, to change it size
+    overflow = 2, -- create additional frames when actions are used closely
+    overflowTime = 0.66, -- time window to overflow
+    stickyActive = true, -- will prevent active actions from hiding
+    orientation = 3,
+    activeColor = {0,1,0},
+    clickColor = {1,0,0},
+    cooldownTip = true,
+    costTip = true,
+    cooldownTipThreshold = 1.5
+}
+
 ActionMirroringFrame_eventHandler = {}
 ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
     if arg1 == "ActionMirroringFrame" then
         if ActionMirroringSettings == nil then
-            ActionMirroringSettings = {
-                dataVersion = "1.2.1",
-                timeout = 1.00, -- time before hiding after an action is used
-                flashtime = 0.20, -- duration of hightlight when an action is used
-                scale = 1.00, -- frame scale, to change it size
-                overflow = 2, -- create additional frames when actions are used closely
-                overflowTime = 0.66, -- time window to overflow
-                stickyActive = true, -- will prevent active actions from hiding
-                orientation = 3,
-                activeColor = {0,1,0},
-                clickColor = {1,0,0},
-                cooldownTip = true,
-                costTip = true
-            }
-        elseif ActionMirroringSettings.dataVersion == "1.0.0" then
-            ActionMirroringSettings.activeColor = {0,1,0}
-            ActionMirroringSettings.clickColor = {1,0,0}
-            ActionMirroringSettings.dataVersion = "1.2.1"
-        elseif ActionMirroringSettings.dataVersion == "1.1.0" then
-            if ActionMirroringSettings.activeColor[1] == 1 and
-                    ActionMirroringSettings.activeColor[2] == 1 and
-                    ActionMirroringSettings.activeColor[3] == 0 then
-                ActionMirroringSettings.activeColor = {0,1,0}
+            ActionMirroringSettings = ActionMirroringSettingsDefaults
+        else
+            if ActionMirroringSettings.dataVersion == "1.1.0" then
+                if ActionMirroringSettings.activeColor[1] == 1 and
+                        ActionMirroringSettings.activeColor[2] == 1 and
+                        ActionMirroringSettings.activeColor[3] == 0 then
+                    ActionMirroringSettings.activeColor = nil
+                end
+                if ActionMirroringSettings.activeColor[1] == 0.66 and
+                        ActionMirroringSettings.activeColor[2] == 0.66 and
+                        ActionMirroringSettings.activeColor[3] == 1 then
+                    ActionMirroringSettings.activeColor = nil
+                end
             end
-            if ActionMirroringSettings.activeColor[1] == 0.66 and
-                    ActionMirroringSettings.activeColor[2] == 0.66 and
-                    ActionMirroringSettings.activeColor[3] == 1 then
-                ActionMirroringSettings.activeColor = {0,1,0}
-            end
-            ActionMirroringSettings.cooldownTip = true
-            ActionMirroringSettings.costTip = true
-            ActionMirroringSettings.dataVersion = "1.2.1"
-        elseif ActionMirroringSettings.dataVersion == "1.1.1" then
-            ActionMirroringSettings.cooldownTip = true
-            ActionMirroringSettings.costTip = true
-            ActionMirroringSettings.dataVersion = "1.2.1"
-        elseif ActionMirroringSettings.dataVersion == "1.2.0" then
             if ActionMirroringSettings.orientation < 0 then
                 ActionMirroringSettings.orientation = 3 - mod(ActionMirroringSettings.orientation +1)
             end
-            ActionMirroringSettings.dataVersion = "1.2.1"
+            for k,v in ActionMirroringSettingsDefaults do
+                if ActionMirroringSettings[k] == nil then
+                    ActionMirroringSettings[k] = v
+                end
+            end
+            ActionMirroringSettings.dataVersion = "1.2.2"
         end
             
         
@@ -258,12 +257,13 @@ Usage:
         * click: color for mirrors' flashing
     * cooldownTip [true|false] show/hide cooldown time over mirrors
     * costTip [true|false] show/hide missing mana/rage/energy over mirrors
+    * cooldownTipThreshold <seconds> (1.5) hide tip for cooldowns lesser than cooldownTipThreshold
 ]]
 
 local SETTINGS = {}
 
 local function setToNumber(e, a)
-    local i = SETTINGS[e].target or i
+    local i = SETTINGS[e].target or e
     if a == "" then
         print(e.." is "..ActionMirroringSettings[s])
         return
@@ -295,14 +295,15 @@ end
 
 SETTINGS = 
 {
-    timeout =       {setter = setToNumber},
-    flashtime =     {setter = setToNumber},
-    scale =         {setter = setToNumber},
-    overflow =      {setter = setToNumber},
-    overflowTime =  {setter = setToNumber},
-    sticky =        {setter = switchSetting, target = "stickyActive"},
-    cooldownTip =   {setter = switchSetting, target = "cooldownTip"},
-    costTip =       {setter = switchSetting, target = "costTip"}
+    timeout =               {setter = setToNumber},
+    flashtime =             {setter = setToNumber},
+    scale =                 {setter = setToNumber},
+    overflow =              {setter = setToNumber},
+    overflowTime =          {setter = setToNumber},
+    sticky =                {setter = switchSetting, target = "stickyActive"},
+    cooldownTip =           {setter = switchSetting, target = "cooldownTip"},
+    costTip =               {setter = switchSetting, target = "costTip"},
+    cooldownTipThreshold =  {setter = setToNumber}
 }
 
 local function CommandParser(msg, editbox)
