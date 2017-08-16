@@ -30,12 +30,7 @@
         </Scripts>
         <Frames>
             <Button name="$parentHandle" hidden="true" setallpoints="true">
-                <Layers>
-                    <Layer level="BACKGROUND">
-                        <Texture name="$parentTex" file="Interface\AddOns\ActionMirroringFrame\amf-handle.tga">
-                        </Texture>
-                    </Layer>
-                </Layers>
+                <NormalTexture name="$parentTex" file="Interface\AddOns\ActionMirroringFrame\amf-handle.tga"/>
                 <Scripts>
                     <OnDragStart>
                         this:GetParent():StartMoving()
