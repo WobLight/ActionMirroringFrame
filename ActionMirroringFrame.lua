@@ -95,7 +95,7 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
                 end
             end
             if ActionMirroringSettings.orientation < 0 then
-                ActionMirroringSettings.orientation = 3 - mod(ActionMirroringSettings.orientation +1)
+                ActionMirroringSettings.orientation = 3 - mod(ActionMirroringSettings.orientation +1, 4)
             end
             for k,v in ActionMirroringSettingsDefaults do
                 if ActionMirroringSettings[k] == nil then
