@@ -156,7 +156,9 @@ end
 function ActionMirroringFrame_onSpellUsed(idx, name)
     SM_UpdateActionSpell(GetActionText(idx), "regular", "/cast "..name)
     SM_UpdateAction()
-    currentAction.spell = GetSpellID(name)
+    if currentAction then
+        currentAction.spell = GetSpellID(name)
+    end
 end
 
 function ActionMirroringFrame_SpellHook()
@@ -185,13 +187,17 @@ function ActionMirroringFrame_SpellHook()
         amf.CastSpellByName = wrapped
         amf.spellChecked = function(...)
             amf.spellHooked = true
-            ActionMirroringFrame_onSpellUsed(currentAction.id,arg[1])
+            if currentAction then
+                ActionMirroringFrame_onSpellUsed(currentAction.id,arg[1])
+            end
             wrapped(unpack(arg))
         end
         CastSpellByName = amf.spellChecked
         amf.standby = false
         DEBUG("spell hooking complete.")
-        ActionMirroringFrame_onSpellUsed(currentAction.id,arg[1])
+        if currentAction then
+            ActionMirroringFrame_onSpellUsed(currentAction.id,arg[1])
+        end
     end
     preHook.target = CastSpellByName
     this.spellPreHook = preHook
