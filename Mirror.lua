@@ -43,8 +43,14 @@ function Mirror_Update()
     end
     
     local icon = getglobal(this:GetName().."Icon")
-    local buttonCooldown = getglobal(this:GetName().."Cooldown")
-    local texture = GetActionTexture(this:GetID())
+    local buttonCooldown, texture
+    if this.spell then
+        buttonCooldown = GetSpellCooldown(this.spell, "spell")
+        texture = GetSpellTexture(this.spell, "spell")
+    else
+        buttonCooldown = getglobal(this:GetName().."Cooldown")
+        texture = GetActionTexture(this:GetID())
+    end
     if ( texture ) then
         icon:SetTexture(texture)
         icon:Show()
@@ -177,7 +183,7 @@ end
 
 function Mirror_UpdateFlash()
     local id = this:GetID()
-    if ( (IsAttackAction(id) and IsCurrentAction(id)) or IsAutoRepeatAction(id) ) then
+    if ( (IsAttackAction(id) and IsCurrentAction(id)) or IsAutoRepeatAction(id) or (this.spell and IsCurrentCast(this.spell, "spell")) ) then
         Mirror_StartFlash()
     else
         Mirror_StopFlash()
@@ -321,8 +327,13 @@ function Mirror_UpdateCount()
 end
 
 function Mirror_UpdateCooldown()
+    local start, duration, enable
+    if this.spell then
+        start, duration, enable = GetSpellCooldown(this.spell,"spell")
+    else
+        start, duration, enable = GetActionCooldown(this:GetID())
+    end
     local cooldown = getglobal(this:GetName().."Cooldown")
-    local start, duration, enable = GetActionCooldown(this:GetID())
     CooldownFrame_SetTimer(cooldown, start, duration, enable)
     if ActionMirroringSettings.cooldownTip and GetTime() - start < duration and (duration > ActionMirroringSettings.cooldownTipThreshold) then
         getglobal(this:GetName().."CooldownTip"):Show()
@@ -364,7 +375,12 @@ function Mirror_UpdatePowerTip()
         this.id = id
         this.update = TOOLTIP_UPDATE_TIME
         ActionMirroringFrameTooltipScanner:SetOwner(UIParent, "ANCHOR_NONE")
-        ActionMirroringFrameTooltipScanner:SetAction(id)
+        local spell = this:GetParent().spell
+        if spell then
+            ActionMirroringFrameTooltipScanner:SetSpell(spell,"spell")
+        else
+            ActionMirroringFrameTooltipScanner:SetAction(id)
+        end
         local powerType
         local text = getglobal(this:GetName().."Text")
         local background = getglobal(this:GetName().."Background")

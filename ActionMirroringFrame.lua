@@ -114,16 +114,89 @@ ActionMirroringFrame_eventHandler.ADDON_LOADED = function ()
     end
 end
 
+local currentAction
+local currentError
+
 function ActionMirroringFrame_onUseAction(amf, id)
+    amf.currentAction = id
     if amf.standby or CursorHasItem() or CursorHasSpell() or HasAction(id) == nil then
         return
     end
     local o = amf.root
     o:overflow(id)
     o:SetID(id)
+    o.spell = currentAction.spell
     o.timer = 0
     o:Show()
     o:refresh()
+end
+
+local function GetSpellID(sn)
+    local _,_, name, rank = strfind(sn, "(.*)%(([^%)]*)%)$")
+    if not rank then
+        name = sn
+    end
+    
+    local i,a,r,f
+    i=0
+    while not f == (a ~= name) do
+        i=i+1
+        a,r=GetSpellName(i,"spell")
+        if a == name then
+            if r == rank then
+                return i
+            else
+                f = i
+            end
+        end
+    end
+    return f
+end
+
+function ActionMirroringFrame_onSpellUsed(idx, name)
+    SM_UpdateActionSpell(GetActionText(idx), "regular", "/cast "..name)
+    SM_UpdateAction()
+    currentAction.spell = GetSpellID(name)
+end
+
+function ActionMirroringFrame_SpellHook()
+    if this.CastSpellByName and CastSpellByName == this.spellChecked or this.spellPreHook and CastSpellByName == this.spellPreHook.wrapped then
+        return
+    end
+    local amf = this
+    DEBUG("spell hook set.")
+    local preHook = {}
+    function preHook:wrapper(...)
+        if self.wrapped ~= CastSpellByName then
+            self.target(unpack(arg))
+            return
+        end
+        DEBUG("spell testing old hook.")
+        amf.spellHooked = nil
+        self.target(unpack(arg))
+        if amf.spellHooked then
+            DEBUG("spell already hooked, dropping.")
+            CastSpellByName = self.target
+            amf.spellChecked = CastSpellByName
+            return
+        end
+        DEBUG("spell spell hooking...")
+        local wrapped = self.target
+        amf.CastSpellByName = wrapped
+        amf.spellChecked = function(...)
+            amf.spellHooked = true
+            ActionMirroringFrame_onSpellUsed(currentAction.id,arg[1])
+            wrapped(unpack(arg))
+        end
+        CastSpellByName = amf.spellChecked
+        amf.standby = false
+        DEBUG("spell hooking complete.")
+        ActionMirroringFrame_onSpellUsed(currentAction.id,arg[1])
+    end
+    preHook.target = CastSpellByName
+    this.spellPreHook = preHook
+    preHook.wrapped = function(...) preHook:wrapper(unpack(arg)) end
+    CastSpellByName = preHook.wrapped
 end
 
 function ActionMirroringFrame_Hook()
@@ -141,6 +214,7 @@ function ActionMirroringFrame_Hook()
         end
         DEBUG("testing old hook.")
         amf.hooked = nil
+        currentAction = {id = arg[1]}
         self.target(unpack(arg))
         if amf.hooked then
             DEBUG("already hooked, dropping.")
@@ -153,13 +227,16 @@ function ActionMirroringFrame_Hook()
         amf.UseAction = wrapped
         amf.checked = function(...)
             amf.hooked = true
-            ActionMirroringFrame_onUseAction(amf,arg[1])
+            currentAction = {id = arg[1]}
             wrapped(unpack(arg))
+            ActionMirroringFrame_onUseAction(amf,arg[1])
+            currentAction = nil
         end
         UseAction = amf.checked
         amf.standby = false
         DEBUG("hooking complete.")
         ActionMirroringFrame_onUseAction(amf,arg[1])
+        currentAction = nil
     end
     preHook.target = UseAction
     this.preHook = preHook
@@ -189,6 +266,7 @@ function ActionMirroringFrame_overflow(self, nid)
     end
     self.next:overflow()
     self.next:SetID(self:GetID())
+    self.next.spell = self.spell
     self.next.timer = self.timer
     self.next.flashing = self.flashing;
     self.next.flashtime = self.flashtime;
@@ -222,7 +300,7 @@ end
 
 function ActionMirroringFrame_isCurrent(self)
   if ActionMirroringFrame.current[self:GetID()] == self.id then
-    if IsCurrentAction(self:GetID()) then
+    if IsCurrentAction(self:GetID()) or (self.spell and IsCurrentCast(self.spell, "spell")) then
       return true
     else
       ActionMirroringFrame.current[self:GetID()] = nil
@@ -232,7 +310,7 @@ function ActionMirroringFrame_isCurrent(self)
     return false
   end
   
-  if IsCurrentAction(self:GetID()) and self.id == ActionMirroringFrame.root:getFirst(self:GetID()) then
+  if IsCurrentAction(self:GetID()) or (self.spell and IsCurrentCast(self.spell, "spell")) and self.id == ActionMirroringFrame.root:getFirst(self:GetID()) then
     ActionMirroringFrame.current[self:GetID()] = self.id
     return true
   end

@@ -25,6 +25,7 @@
                 if handle then handle() end
             </OnEvent>
             <OnUpdate>
+                ActionMirroringFrame_SpellHook()
                 ActionMirroringFrame_Hook()
             </OnUpdate>
         </Scripts>
