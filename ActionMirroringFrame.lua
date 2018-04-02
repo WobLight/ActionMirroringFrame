@@ -154,8 +154,10 @@ local function GetSpellID(sn)
 end
 
 function ActionMirroringFrame_onSpellUsed(idx, name)
-    SM_UpdateActionSpell(GetActionText(idx), "regular", "/cast "..name)
-    SM_UpdateAction()
+    if SM_UpdateActionSpell and SM_UpdateAction then
+        SM_UpdateActionSpell(GetActionText(idx), "regular", "/cast "..name)
+        SM_UpdateAction()
+    end
     if currentAction then
         currentAction.spell = GetSpellID(name)
     end
