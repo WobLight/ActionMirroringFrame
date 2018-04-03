@@ -141,7 +141,7 @@ local function GetSpellID(sn)
     i=0
     while not f == (a ~= name) do
         i=i+1
-        a,r=GetSpellName(i,"spell")
+        a,r=GetSpellName(i,BOOKTYPE_SPELL)
         if a == name then
             if r == rank then
                 return i
@@ -308,7 +308,7 @@ end
 
 function ActionMirroringFrame_isCurrent(self)
   if ActionMirroringFrame.current[self:GetID()] == self.id then
-    if IsCurrentAction(self:GetID()) or (self.spell and IsCurrentCast(self.spell, "spell")) then
+    if IsCurrentAction(self:GetID()) or (self.spell and IsCurrentCast(self.spell, BOOKTYPE_SPELL)) then
       return true
     else
       ActionMirroringFrame.current[self:GetID()] = nil
@@ -318,7 +318,7 @@ function ActionMirroringFrame_isCurrent(self)
     return false
   end
   
-  if IsCurrentAction(self:GetID()) or (self.spell and IsCurrentCast(self.spell, "spell")) and self.id == ActionMirroringFrame.root:getFirst(self:GetID()) then
+  if IsCurrentAction(self:GetID()) or (self.spell and IsCurrentCast(self.spell, BOOKTYPE_SPELL)) and self.id == ActionMirroringFrame.root:getFirst(self:GetID()) then
     ActionMirroringFrame.current[self:GetID()] = self.id
     return true
   end

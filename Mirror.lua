@@ -45,8 +45,8 @@ function Mirror_Update()
     local icon = getglobal(this:GetName().."Icon")
     local buttonCooldown, texture
     if this.spell then
-        buttonCooldown = GetSpellCooldown(this.spell, "spell")
-        texture = GetSpellTexture(this.spell, "spell")
+        buttonCooldown = GetSpellCooldown(this.spell, BOOKTYPE_SPELL)
+        texture = GetSpellTexture(this.spell, BOOKTYPE_SPELL)
     else
         buttonCooldown = getglobal(this:GetName().."Cooldown")
         texture = GetActionTexture(this:GetID())
@@ -183,7 +183,7 @@ end
 
 function Mirror_UpdateFlash()
     local id = this:GetID()
-    if ( (IsAttackAction(id) and IsCurrentAction(id)) or IsAutoRepeatAction(id) or (this.spell and IsCurrentCast(this.spell, "spell")) ) then
+    if ( (IsAttackAction(id) and IsCurrentAction(id)) or IsAutoRepeatAction(id) or (this.spell and IsCurrentCast(this.spell, BOOKTYPE_SPELL)) ) then
         Mirror_StartFlash()
     else
         Mirror_StopFlash()
@@ -329,7 +329,7 @@ end
 function Mirror_UpdateCooldown()
     local start, duration, enable
     if this.spell then
-        start, duration, enable = GetSpellCooldown(this.spell,"spell")
+        start, duration, enable = GetSpellCooldown(this.spell,BOOKTYPE_SPELL)
     else
         start, duration, enable = GetActionCooldown(this:GetID())
     end
@@ -377,7 +377,7 @@ function Mirror_UpdatePowerTip()
         ActionMirroringFrameTooltipScanner:SetOwner(UIParent, "ANCHOR_NONE")
         local spell = this:GetParent().spell
         if spell then
-            ActionMirroringFrameTooltipScanner:SetSpell(spell,"spell")
+            ActionMirroringFrameTooltipScanner:SetSpell(spell,BOOKTYPE_SPELL)
         else
             ActionMirroringFrameTooltipScanner:SetAction(id)
         end
