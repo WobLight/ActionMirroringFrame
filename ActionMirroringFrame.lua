@@ -132,6 +132,7 @@ function ActionMirroringFrame_onUseAction(amf, id)
 end
 
 local function GetSpellID(sn)
+    sn = strlower(sn)
     local _,_, name, rank = strfind(sn, "(.*)%(([^%)]*)%)$")
     if not rank then
         name = sn
@@ -141,7 +142,8 @@ local function GetSpellID(sn)
     i=0
     while not f == (a ~= name) do
         i=i+1
-        a,r=GetSpellName(i,BOOKTYPE_SPELL)
+        a,r= GetSpellName(i,BOOKTYPE_SPELL)
+        a,r = strlower(a), strlower(r)
         if a == name then
             if r == rank then
                 return i
