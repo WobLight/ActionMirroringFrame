@@ -143,7 +143,7 @@ local function GetSpellID(sn)
     while not f == (a ~= name) do
         i=i+1
         a,r= GetSpellName(i,BOOKTYPE_SPELL)
-        a,r = strlower(a), strlower(r)
+        a,r = strlower(a or ""), strlower(r or "")
         if a == name then
             if r == rank then
                 return i
