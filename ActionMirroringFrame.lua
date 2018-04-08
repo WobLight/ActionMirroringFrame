@@ -444,3 +444,17 @@ end
 SLASH_ACTIONMIRRORINGFRAME1 = "/actionmirroringframe"
 SLASH_ACTIONMIRRORINGFRAME2 = "/amf"
 SlashCmdList["ACTIONMIRRORINGFRAME"] = CommandParser
+
+local CAST_OLD = SlashCmdList["CAST"]
+SlashCmdList["CAST"] = function (...)
+    local old = CastSpellByName
+    local triggered = false
+    CastSpellByName = function (...)
+        old(unpack(arg))
+        triggered = true
+    end
+    CAST_OLD(unpack(arg))
+    if not triggered then
+        ActionMirroringFrame_onSpellUsed(arg[1])
+    end
+end
