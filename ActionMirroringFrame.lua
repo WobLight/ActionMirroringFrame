@@ -133,24 +133,21 @@ end
 
 local function GetSpellID(sn)
     sn = strlower(sn)
-    local _,_, name, rank = strfind(sn, "(.*)%(([^%)]*)%)$")
     if not rank then
         name = sn
     end
     
-    local i,a,r,f
-    i=0
-    while not f == (a ~= name) do
-        i=i+1
-        a,r= GetSpellName(i,BOOKTYPE_SPELL)
-        a,r = strlower(a or ""), strlower(r or "")
-        if a == name then
-            if r == rank then
-                return i
-            else
-                f = i
-            end
+    local i,a,r,f = 1, GetSpellName(1,BOOKTYPE_SPELL)
+    while a do
+        if strlower(format("%s(%s)", a, r or "")) == sn then
+            return i
+        elseif strlower(a) == sn then
+            f = i
+        elseif f then
+            return f
         end
+        i = i+1
+        a,r = GetSpellName(i,BOOKTYPE_SPELL)
     end
     return f
 end
