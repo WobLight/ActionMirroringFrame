@@ -126,6 +126,7 @@ function ActionMirroringFrame_onUseAction(amf, id)
     o:overflow(id)
     o:SetID(id)
     o.spell = currentAction.spell
+    o.inventory = currentAction.inventory
     o.timer = 0
     o:Show()
     o:refresh()
@@ -158,7 +159,19 @@ function ActionMirroringFrame_onSpellUsed(idx, name)
         SM_UpdateAction()
     end
     if currentAction then
+        currentAction.inventory = nil
         currentAction.spell = GetSpellID(name)
+    end
+end
+
+function ActionMirroringFrame_onInventoryUsed(idx, slot)
+    if SM_UpdateActionSpell and SM_UpdateAction then
+        SM_UpdateActionSpell(GetActionText(idx), "regular", format("/run UseInventoryItem(%d)", slot))
+        SM_UpdateAction()
+    end
+    if currentAction then
+        currentAction.spell = nil
+        currentAction.inventory = slot
     end
 end
 
@@ -183,7 +196,7 @@ function ActionMirroringFrame_SpellHook()
             amf.spellChecked = CastSpellByName
             return
         end
-        DEBUG("spell spell hooking...")
+        DEBUG("spell hooking...")
         local wrapped = self.target
         amf.CastSpellByName = wrapped
         amf.spellChecked = function(...)
@@ -204,6 +217,50 @@ function ActionMirroringFrame_SpellHook()
     this.spellPreHook = preHook
     preHook.wrapped = function(...) preHook:wrapper(unpack(arg)) end
     CastSpellByName = preHook.wrapped
+end
+
+function ActionMirroringFrame_InventoryHook()
+    if this.UseInventoryItem and UseInventoryItem == this.inventoryChecked or this.inventoryPreHook and UseInventoryItem == this.inventoryPreHook.wrapped then
+        return
+    end
+    local amf = this
+    DEBUG("inventory hook set.")
+    local preHook = {}
+    function preHook:wrapper(...)
+        if self.wrapped ~= UseInventoryItem then
+            self.target(unpack(arg))
+            return
+        end
+        DEBUG("inventory testing old hook.")
+        amf.inventoryHooked = nil
+        self.target(unpack(arg))
+        if amf.inventoryHooked then
+            DEBUG("inventory already hooked, dropping.")
+            UseInventoryItem = self.target
+            amf.inventoryChecked = UseInventoryItem
+            return
+        end
+        DEBUG("inventory hooking...")
+        local wrapped = self.target
+        amf.UseInventoryItem = wrapped
+        amf.inventoryChecked = function(...)
+            amf.inventoryHooked = true
+            if currentAction then
+                ActionMirroringFrame_onInventoryUsed(currentAction.id,arg[1])
+            end
+            wrapped(unpack(arg))
+        end
+        UseInventoryItem = amf.inventoryChecked
+        amf.standby = false
+        DEBUG("inventory hooking complete.")
+        if currentAction then
+            ActionMirroringFrame_onInventoryUsed(currentAction.id,arg[1])
+        end
+    end
+    preHook.target = UseInventoryItem
+    this.inventoryPreHook = preHook
+    preHook.wrapped = function(...) preHook:wrapper(unpack(arg)) end
+    UseInventoryItem = preHook.wrapped
 end
 
 function ActionMirroringFrame_Hook()
@@ -274,6 +331,7 @@ function ActionMirroringFrame_overflow(self, nid)
     self.next:overflow()
     self.next:SetID(self:GetID())
     self.next.spell = self.spell
+    self.next.inventory = self.inventory
     self.next.timer = self.timer
     self.next.flashing = self.flashing;
     self.next.flashtime = self.flashtime;

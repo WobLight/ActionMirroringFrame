@@ -47,6 +47,9 @@ function Mirror_Update()
     if this.spell then
         buttonCooldown = GetSpellCooldown(this.spell, BOOKTYPE_SPELL)
         texture = GetSpellTexture(this.spell, BOOKTYPE_SPELL)
+    elseif this.inventory then
+        buttonCooldown = GetInventoryItemCooldown("player", this.inventory)
+        texture = GetInventoryItemTexture("player", this.inventory)
     else
         buttonCooldown = getglobal(this:GetName().."Cooldown")
         texture = GetActionTexture(this:GetID())
@@ -330,6 +333,8 @@ function Mirror_UpdateCooldown()
     local start, duration, enable
     if this.spell then
         start, duration, enable = GetSpellCooldown(this.spell,BOOKTYPE_SPELL)
+    elseif this.inventory then
+        start, duration, enable = GetInventoryItemCooldown("player", this.inventory)
     else
         start, duration, enable = GetActionCooldown(this:GetID())
     end
@@ -376,8 +381,11 @@ function Mirror_UpdatePowerTip()
         this.update = TOOLTIP_UPDATE_TIME
         ActionMirroringFrameTooltipScanner:SetOwner(UIParent, "ANCHOR_NONE")
         local spell = this:GetParent().spell
+        local inventory = this:GetParent().inventory
         if spell then
             ActionMirroringFrameTooltipScanner:SetSpell(spell,BOOKTYPE_SPELL)
+        elseif inventory then
+            ActionMirroringFrameTooltipScanner:SetInventoryItem("player", inventory)
         else
             ActionMirroringFrameTooltipScanner:SetAction(id)
         end

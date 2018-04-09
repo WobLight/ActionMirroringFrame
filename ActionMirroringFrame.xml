@@ -26,6 +26,7 @@
             </OnEvent>
             <OnUpdate>
                 ActionMirroringFrame_SpellHook()
+                ActionMirroringFrame_InventoryHook()
                 ActionMirroringFrame_Hook()
             </OnUpdate>
         </Scripts>
