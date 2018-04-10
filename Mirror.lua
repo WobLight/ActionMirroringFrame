@@ -50,6 +50,9 @@ function Mirror_Update()
     elseif this.inventory then
         buttonCooldown = GetInventoryItemCooldown("player", this.inventory)
         texture = GetInventoryItemTexture("player", this.inventory)
+    elseif this.container and GetContainerItem(this.container.bag,this.container.slot) == this.container.link then
+        buttonCooldown = GetContainerItemCooldown(this.container.bag, this.container.slot)
+        texture = GetContainerItemTexture(this.container.bag, this.container.slot)
     else
         buttonCooldown = getglobal(this:GetName().."Cooldown")
         texture = GetActionTexture(this:GetID())
@@ -335,6 +338,8 @@ function Mirror_UpdateCooldown()
         start, duration, enable = GetSpellCooldown(this.spell,BOOKTYPE_SPELL)
     elseif this.inventory then
         start, duration, enable = GetInventoryItemCooldown("player", this.inventory)
+    elseif this.container and GetContainerItem(this.container.bag,this.container.slot) == this.container.link then
+        start, duration, enable = GetContainerItemCooldown(this.container.bag,this.container.slot)
     else
         start, duration, enable = GetActionCooldown(this:GetID())
     end
@@ -382,10 +387,13 @@ function Mirror_UpdatePowerTip()
         ActionMirroringFrameTooltipScanner:SetOwner(UIParent, "ANCHOR_NONE")
         local spell = this:GetParent().spell
         local inventory = this:GetParent().inventory
+        local container = this:GetParent().container
         if spell then
             ActionMirroringFrameTooltipScanner:SetSpell(spell,BOOKTYPE_SPELL)
         elseif inventory then
             ActionMirroringFrameTooltipScanner:SetInventoryItem("player", inventory)
+        elseif container then
+            ActionMirroringFrameTooltipScanner:SetContainerItem(container.bag, container.slot)
         else
             ActionMirroringFrameTooltipScanner:SetAction(id)
         end

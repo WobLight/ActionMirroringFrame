@@ -160,6 +160,7 @@ function ActionMirroringFrame_onSpellUsed(idx, name)
     end
     if currentAction then
         currentAction.inventory = nil
+        currentAction.container = nil
         currentAction.spell = GetSpellID(name)
     end
 end
@@ -171,7 +172,20 @@ function ActionMirroringFrame_onInventoryUsed(idx, slot)
     end
     if currentAction then
         currentAction.spell = nil
+        currentAction.container = nil
         currentAction.inventory = slot
+    end
+end
+
+function ActionMirroringFrame_onContainerUsed(idx, bag, slot)
+    if SM_UpdateActionSpell and SM_UpdateAction then
+        SM_UpdateActionSpell(GetActionText(idx), "regular", format("/run UseContainerItem(%d,%d)", bag, slot))
+        SM_UpdateAction()
+    end
+    if currentAction then
+        currentAction.spell = nil
+        currentAction.inventory = nil
+        currentAction.container = {bag = bag, slot = slot, link = GetContainerItemLink(bag, slot)}
     end
 end
 
@@ -261,6 +275,50 @@ function ActionMirroringFrame_InventoryHook()
     this.inventoryPreHook = preHook
     preHook.wrapped = function(...) preHook:wrapper(unpack(arg)) end
     UseInventoryItem = preHook.wrapped
+end
+
+function ActionMirroringFrame_ContainerHook()
+    if this.UseContainerItem and UseContainerItem == this.containerChecked or this.containerPreHook and UseContainerItem == this.containerPreHook.wrapped then
+        return
+    end
+    local amf = this
+    DEBUG("container hook set.")
+    local preHook = {}
+    function preHook:wrapper(...)
+        if self.wrapped ~= UseContainerItem then
+            self.target(unpack(arg))
+            return
+        end
+        DEBUG("container testing old hook.")
+        amf.containerHooked = nil
+        self.target(unpack(arg))
+        if amf.containerHooked then
+            DEBUG("container already hooked, dropping.")
+            UseContainerItem = self.target
+            amf.containerChecked = UseContainerItem
+            return
+        end
+        DEBUG("container hooking...")
+        local wrapped = self.target
+        amf.UseContainerItem = wrapped
+        amf.containerChecked = function(...)
+            amf.containerHooked = true
+            if currentAction then
+                ActionMirroringFrame_onContainerUsed(currentAction.id,arg[1], arg[2])
+            end
+            wrapped(unpack(arg))
+        end
+        UseContainerItem = amf.containerChecked
+        amf.standby = false
+        DEBUG("container hooking complete.")
+        if currentAction then
+            ActionMirroringFrame_onContainerUsed(currentAction.id,arg[1], arg[2])
+        end
+    end
+    preHook.target = UseContainerItem
+    this.containerPreHook = preHook
+    preHook.wrapped = function(...) preHook:wrapper(unpack(arg)) end
+    UseContainerItem = preHook.wrapped
 end
 
 function ActionMirroringFrame_Hook()
