@@ -28,7 +28,7 @@
                 ActionMirroringFrame_SpellHook()
                 ActionMirroringFrame_InventoryHook()
                 ActionMirroringFrame_ContainerHook()
-                ActionMirroringFrame_Hook()
+                ActionMirroringFrame_ActionHook(this)
             </OnUpdate>
         </Scripts>
         <Frames>
