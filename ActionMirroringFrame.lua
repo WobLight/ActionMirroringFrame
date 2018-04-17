@@ -131,6 +131,9 @@ function ActionMirroringFrame_onUseAction(amf, id)
     o.spell = currentAction.spell
     o.inventory = currentAction.inventory
     o.timer = 0
+    if IsCurrentAction(id) and not (ActionMirroringFrame.current[id] and ActionMirroringFrame.current[id]:IsShown()) then
+        ActionMirroringFrame.current[id] = o
+    end
     o:Show()
     o:refresh()
 end
@@ -307,10 +310,10 @@ function ActionMirroringFrame_overflow(self, nid)
     self.next.spell = self.spell
     self.next.inventory = self.inventory
     self.next.timer = self.timer
-    self.next.flashing = self.flashing;
-    self.next.flashtime = self.flashtime;
+    self.next.flashing = self.flashing
+    self.next.flashtime = self.flashtime
     if self:isCurrent() then
-      ActionMirroringFrame.current[self:GetID()] = self.next.id
+        ActionMirroringFrame.current[self:GetID()] = self.next
     end
     self.next:Show()
     self.next:refresh()
@@ -338,22 +341,11 @@ function ActionMirroringFrame_updateOrientation(self)
 end
 
 function ActionMirroringFrame_isCurrent(self)
-  if ActionMirroringFrame.current[self:GetID()] == self.id then
-    if IsCurrentAction(self:GetID()) or (self.spell and IsCurrentCast(self.spell, BOOKTYPE_SPELL)) then
-      return true
-    else
-      ActionMirroringFrame.current[self:GetID()] = nil
-      return false
+    if not IsCurrentAction(self:GetID()) then
+        ActionMirroringFrame.current[self:GetID()] = nil
+        return false
     end
-  elseif ActionMirroringFrame.current[self:GetID()] then
-    return false
-  end
-  
-  if IsCurrentAction(self:GetID()) or (self.spell and IsCurrentCast(self.spell, BOOKTYPE_SPELL)) and self.id == ActionMirroringFrame.root:getFirst(self:GetID()) then
-    ActionMirroringFrame.current[self:GetID()] = self.id
-    return true
-  end
-  return false
+    return ActionMirroringFrame.current[self:GetID()] == self
 end
 
 local ActionMirroringFrame_Usage = [[
