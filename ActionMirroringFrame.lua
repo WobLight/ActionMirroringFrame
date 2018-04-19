@@ -247,11 +247,11 @@ end
 function ActionMirroringFrame_ActionHook(amf)
     ActionMirroringFrame_Hook("UseAction",
         function (id)
-            currentAction = {id = id}
+            currentAction = {id = id, old = currentAction}
         end,
         function (id)
             ActionMirroringFrame_onUseAction(amf,id)
-            currentAction = nil
+            currentAction = currentAction.old
         end
     )
 end
