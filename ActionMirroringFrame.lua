@@ -197,51 +197,63 @@ end
 
 
 local hooks = {}
+
+local Hook = {}
+
+function Hook:new(fname, pre, post)
+    local o = {wrapped = getglobal(fname), fname = fname, shared = hooks[fname], pre = pre, post = post}
+    setmetatable(o, {__index = Hook, __call = Hook.call})
+    return o
+end
+
+function Hook:lock()
+    if not self.shared.lock then
+        self.shared.lock = self
+    end
+    return self.shared.lock == self
+end
+
+function Hook:unlock()
+    if self.shared.lock == self then
+        self.shared.lock = nil
+    end
+end
+
+function Hook:call(...)
+    if not self:lock() then
+        self.shared.ok = true
+        return self.wrapped(unpack(arg))
+    end
+    self.shared.ok = false
+    if self.pre then
+        self.pre(unpack(arg))
+    end
+    local r = self.wrapped(unpack(arg))
+    if self.post then
+        self.post(unpack(arg))
+    end
+    if getglobal(self.fname) == self and not self.tested then
+        if self.shared.ok then
+            DEBUG("%s was already hooked, dropping.", self.fname)
+            self.shared.checked = self.wrapped
+            setglobal(self.fname, self.wrapped)
+        end
+        self.tested = true
+    end
+    self:unlock()
+    return r
+end
+
 function ActionMirroringFrame_Hook(fn, fs, fc)
     if not hooks[fn] then
         hooks[fn] = {}
     end
     local hook = hooks[fn]
-    if hook.original and getglobal(fn) == hook.checked or hook.pre and getglobal(fn) == hook.pre.wrapped then
+    if getglobal(fn) == hook.checked or (getmetatable(getglobal(fn)) or {}).__index == Hook then
         return
     end
-    fs, fc = fs or function()end, fc or function()end
-    local amf = this
+    setglobal(fn,Hook:new(fn, fs, fc))
     DEBUG("%s hook set.", fn)
-    local pre = {}
-    function pre:wrapper(...)
-        if self.wrapped ~= getglobal(fn) or CursorHasItem() or CursorHasSpell() then
-            self.target(unpack(arg))
-            return
-        end
-        DEBUG("testing old %s hook.", fn)
-        hook.hooked = nil
-        fs(unpack(arg))
-        self.target(unpack(arg))
-        if hook.hooked then
-            DEBUG("%s already hooked, dropping.", fn)
-            setglobal(fn,self.target)
-            hook.checked = self.target
-            return
-        end
-        DEBUG("hooking %s...", fn)
-        local wrapped = self.target
-        hook.original = wrapped
-        hook.checked = function(...)
-            hook.hooked = true
-            fs(unpack(arg))
-            wrapped(unpack(arg))
-            fc(unpack(arg))
-        end
-        setglobal(fn, hook.checked)
-        amf.standby = false
-        DEBUG("hooked %s successfuly.", fn)
-        fc(unpack(arg))
-    end
-    pre.target = getglobal(fn)
-    hook.pre = pre
-    pre.wrapped = function(...) pre:wrapper(unpack(arg)) end
-    setglobal(fn, pre.wrapped)
 end
 
 function ActionMirroringFrame_ActionHook(amf)
