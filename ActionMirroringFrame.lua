@@ -485,6 +485,7 @@ SlashCmdList["CAST"] = function (...)
         triggered = true
     end
     CAST_OLD(unpack(arg))
+    CastSpellByName = old
     if not triggered then
         ActionMirroringFrame_onSpellUsed(arg[1])
     end
