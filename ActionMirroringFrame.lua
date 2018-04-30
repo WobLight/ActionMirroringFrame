@@ -209,12 +209,14 @@ end
 function Hook:lock()
     if not self.shared.lock then
         self.shared.lock = self
-        return true
     end
+    return self.shared.lock == self
 end
 
 function Hook:unlock()
-    self.shared.lock = nil
+    if self.shared.lock == self then
+        self.shared.lock = nil
+    end
 end
 
 function Hook:call(...)
